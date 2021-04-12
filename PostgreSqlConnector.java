@@ -7,8 +7,7 @@ import java.io.IOException;
 
 
 public class PostgreSqlConnector {
-	public static void main(String[] args) throws IOException {
-
+	public static void DBConnect() throws IOException {
 		GetPropertyValues properties = new GetPropertyValues();
 
 		String user = properties.getPropValues("user");
@@ -29,7 +28,7 @@ public class PostgreSqlConnector {
 			ResultSet resultSet = statement.executeQuery("SELECT * FROM package_version");
 			while (resultSet.next()) {
 				System.out.printf("%-30.30s  %-30.30s%n", resultSet.getString("id"), resultSet.getString("metadata"));
-			}			
+			}
 		} catch (SQLException e) {
 			System.out.println("Connection failure.");
 			e.printStackTrace();
