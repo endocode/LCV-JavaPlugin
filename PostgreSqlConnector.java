@@ -1,13 +1,11 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.beans.Customizer;
+import java.sql.*;
 import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
+import org.postgresql.util.PGobject;
 
 
 public class PostgreSqlConnector {
@@ -19,7 +17,7 @@ public class PostgreSqlConnector {
 		String host = properties.getPropValues("host");
 		String port = properties.getPropValues("port");
 		String db = properties.getPropValues("db");
-		JSONObject json = new JSONObject();
+		// JSONObject json = new JSONObject();
 
 
 
@@ -30,18 +28,20 @@ public class PostgreSqlConnector {
 			System.out.println("Connected to PostgreSQL database!");
 			Statement statement = connection.createStatement();
 			System.out.println("Reading metadata records...");
-			//System.out.printf("%-30.30s  %-30.30s%n", "id", "metadata");
 			ResultSet resultSet = statement.executeQuery("SELECT * FROM package_version");
 			while (resultSet.next()) {
-				//System.out.printf("%-30.30s  %-30.30s%n", resultSet.getString("id"), resultSet.getString("metadata"));
 				String id = resultSet.getString("id");
-
-				Object metadata = resultSet.getObject("metadata");
-				//Object metadata = JSON.parse(resultSet.getString("metadata"));
-				System.out.println("id:"+id);
-				System.out.println("JSON Payload:"+metadata);
-				String InboundLicenses = json.getJSONObject("input").getString("InboundLicenses");
-
+				String metadata = resultSet.getString("metadata");
+				PGobject jsonObject = new PGobject();
+				jsonObject.setType("json");
+				jsonObject.setValue(String.valueOf(metadata));
+				// converting PGobject to JSONObject.
+				String jsonText;
+				jsonText = jsonObject.getValue();
+				JSONObject json = new JSONObject(jsonText);
+				// retrieving the JSONarray of InboundLicense
+				JSONArray InboundLicense = json.getJSONObject("payload").getJSONObject("package_metadata").getJSONArray("InboundLicenses");
+				System.out.println(InboundLicense);
 			}
 		} catch (SQLException e) {
 			System.out.println("Connection failure.");
