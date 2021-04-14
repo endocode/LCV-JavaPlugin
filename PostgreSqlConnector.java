@@ -17,14 +17,9 @@ public class PostgreSqlConnector {
 		String host = properties.getPropValues("host");
 		String port = properties.getPropValues("port");
 		String db = properties.getPropValues("db");
-		// JSONObject json = new JSONObject();
-
-
 
 		try (Connection connection = DriverManager.getConnection("jdbc:postgresql://"+host+":"+port+"/"+db+"", user, password)) {
-
 			System.out.println("Java JDBC PostgreSQL Example");
-
 			System.out.println("Connected to PostgreSQL database!");
 			Statement statement = connection.createStatement();
 			System.out.println("Reading metadata records...");
