@@ -19,7 +19,8 @@ public class APICalls {
       return response.statusCode();
     }
     public static void GetRequest(String url) throws IOException, InterruptedException {
-      try {
+        System.out.println("Connecting to LCV ... ");
+        try {
         int status = sendGetRequest(url);
         if (status == 200) {
             System.out.println(url+" is reachable.");
@@ -29,9 +30,8 @@ public class APICalls {
       } catch (IOException | InterruptedException e) {
         System.out.println(e);  }
     }
-    public static void PostRequest() throws IOException {
-      // these strings should be retrieved from the metadata db
-      String InboundLicensesList = "MIT,Apache-2.0";
+    public static void LCVPostRequest(String InboundLicensesList) throws IOException {
+      // this string should be retrieved somehow.
       String OutboundLicense = "MIT";
       var url = "http://0.0.0.0:8080/LicensesInputSPDX?InboundLicenses="+InboundLicensesList+"&OutboundLicense="+OutboundLicense+"";
       var urlParameters = "";
@@ -62,39 +62,11 @@ public class APICalls {
       } finally {
           con.disconnect();
       }
-  }
-    public static void PostRequest_2ndMethod() throws IOException {
-      String urlParameters2  = "InboundLicenses=MIT&OutboundLicense=MIT";
-      byte[] postData2       = urlParameters2.getBytes( StandardCharsets.UTF_8 );
-      int    postDataLength = postData2.length;
-      var    request        = "http://0.0.0.0:8080/LicensesInputSPDX";
-      try {
-          var myurl2 = new URL(request);
-          //HttpURLConnection conn = (HttpURLConnection) url2.openConnection();
-          con = (HttpURLConnection) myurl2.openConnection();
-          con.setDoOutput( true );
-          con.setInstanceFollowRedirects( false );
-          con.setRequestMethod( "POST" );
-          con.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
-          con.setRequestProperty( "charset", "utf-8");
-          con.setRequestProperty( "Content-Length", Integer.toString( postDataLength ));
-          con.setUseCaches( false );
-          try( DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.write(postData2);
-          }
-          StringBuilder content;
-          try (var br = new BufferedReader(
-              new InputStreamReader(con.getInputStream()))) {
-                  String line;
-                  content = new StringBuilder();
-                  while ((line = br.readLine()) != null) {
-                      content.append(line);
-                      content.append(System.lineSeparator());
-              }
-          }
-          System.out.println(content.toString());
-      } finally {
-          con.disconnect();
-      }
+    }
+
+    public static String RemoveQuotasAndBrackets(String request) {
+        request = request.replace("\"", "");
+        request = request.replaceAll("\\[", "").replaceAll("\\]","");
+        return request;
     }
 }

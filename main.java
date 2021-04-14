@@ -1,16 +1,18 @@
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
+import org.json.JSONArray;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class main {
+    private static String InboundLicenseClean;
+
     public static void main(String[] args) throws IOException, InterruptedException {
       String url = "http://0.0.0.0:8080/APIEndpoints";
+      //retrieving InboundLicense array from Postgres
+      JSONArray InboundLicense = PostgreSqlConnector.DBConnect();
+      // Manipulating the array before to pass it to LCV
+      String InboundLicenseString = String.valueOf(InboundLicense);
+      InboundLicenseClean = APICalls.RemoveQuotasAndBrackets(InboundLicenseString);
+      // API call towards LCVServer
       APICalls.GetRequest(url);
-      APICalls.PostRequest();
-      PostgreSqlConnector.DBConnect();
-  }
+      APICalls.LCVPostRequest(InboundLicenseClean);
+    }
 }
