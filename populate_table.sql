@@ -1,7 +1,7 @@
 -- This query should be run from the postgres localhost (e.g. pgAdmin):
 
-INSERT INTO package_version (metadata)
-VALUES('{
+INSERT INTO package_version (id, metadata)
+VALUES('2','{
    "plugin_name":"QMSTR",
    "plugin_version":"0.0.1",
    "input":{

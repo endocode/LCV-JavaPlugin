@@ -9,7 +9,6 @@ import org.postgresql.util.PGobject;
 
 public class PostgreSqlConnector {
 	private static ResourceBundle resultSet;
-	private static Throwable throwables;
 
 	public static Connection DBConnection() throws IOException, SQLException {
 		GetPropertyValues properties = new GetPropertyValues();
@@ -24,16 +23,13 @@ public class PostgreSqlConnector {
 		return connection;
 	}
 
-	public PostgreSqlConnector() throws IOException {
-	}
-
 	public static JSONArray DBRetrieveInboundLicenses() throws IOException {
 		try (Connection connection = PostgreSqlConnector.DBConnection()){
 			ResultSet resultSet;
 			Statement statement = connection.createStatement();
-			resultSet = statement.executeQuery("SELECT * FROM package_version");
-			JSONArray InboundLicense = null;
-			while (resultSet.next()) {
+			resultSet = statement.executeQuery("SELECT * FROM package_version WHERE id = 2");
+			if (resultSet.next()) {
+				JSONArray InboundLicense = null;
 				String id = resultSet.getString("id");
 				String metadata = resultSet.getString("metadata");
 				PGobject jsonObject = new PGobject();
@@ -43,16 +39,34 @@ public class PostgreSqlConnector {
 				String jsonText;
 				jsonText = jsonObject.getValue();
 				JSONObject json = new JSONObject(jsonText);
-				// retrieving the JSONarray of InboundLicense
+				// retrieving the JSON array of InboundLicense
 				InboundLicense = json.getJSONObject("payload").getJSONObject("package_metadata").getJSONArray("InboundLicenses");
-
-				//System.out.println(InboundLicense);
+				return InboundLicense;
 			}
-			return InboundLicense;
 		} catch (SQLException e) {
 			System.out.println("Connection failure.");
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	// in input a json
+	public static boolean DBInsertLicenseComplianceAssessment(PGobject jsonAPIResponse) throws IOException {
+		String query = "UPDATE package_version SET \"LicenseComplianceAssessment\" = ? WHERE id=2" ;
+		try (Connection connection = PostgreSqlConnector.DBConnection()){
+			PreparedStatement statement = connection.prepareStatement(query);
+			jsonAPIResponse.setType("json");
+			jsonAPIResponse.setValue(jsonAPIResponse.toString());
+			statement.setObject(1,jsonAPIResponse);
+			return statement.executeUpdate() > 0;
+			
+			} catch (SQLException throwables) {
+			throwables.printStackTrace();
+		}
+		return isaBoolean();
+	}
+
+	private static boolean isaBoolean() {
+		return false;
 	}
 }

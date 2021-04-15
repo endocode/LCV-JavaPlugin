@@ -1,4 +1,6 @@
 import org.json.JSONArray;
+import org.postgresql.util.PGobject;
+
 import java.io.IOException;
 
 public class main {
@@ -13,6 +15,12 @@ public class main {
       InboundLicenseClean = APICalls.RemoveQuotasAndBrackets(InboundLicenseString);
       // API call towards LCVServer
       APICalls.GetRequest(url);
-      APICalls.LCVPostRequest(InboundLicenseClean);
+      new PGobject();
+      PGobject jsonAPIResponse = APICalls.LCVPostRequest(InboundLicenseClean);
+      System.out.println(jsonAPIResponse);
+        var b = PostgreSqlConnector.DBInsertLicenseComplianceAssessment(jsonAPIResponse);
+        if (b==true){
+            System.out.println("Update successfully inserted");
+        }
     }
 }

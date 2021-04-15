@@ -1,3 +1,5 @@
+import org.postgresql.util.PGobject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+
 public class APICalls {
     private static HttpURLConnection con;
     private static int sendGetRequest(String url) throws IOException, InterruptedException {
@@ -30,7 +34,7 @@ public class APICalls {
       } catch (IOException | InterruptedException e) {
         System.out.println(e);  }
     }
-    public static void LCVPostRequest(String InboundLicensesList) throws IOException {
+    public static PGobject LCVPostRequest(String InboundLicensesList) throws IOException {
       // this string should be retrieved somehow.
       String OutboundLicense = "MIT";
       var url = "http://0.0.0.0:8080/LicensesInputSPDX?InboundLicenses="+InboundLicensesList+"&OutboundLicense="+OutboundLicense+"";
@@ -58,10 +62,20 @@ public class APICalls {
                       content.append(System.lineSeparator());
               }
           }
-          System.out.println(content.toString());
+          // System.out.println(content.toString());
+          // JSONObject contentJsonFormat = new JSONObject(content);
+          PGobject jsonContent = new PGobject();
+          jsonContent.setType("json");
+          jsonContent.setValue(String.valueOf(content));
+
+          //System.out.println(jsonContent);
+          return jsonContent;
+      } catch (SQLException throwables) {
+          throwables.printStackTrace();
       } finally {
           con.disconnect();
       }
+        return null;
     }
 
     public static String RemoveQuotasAndBrackets(String request) {
